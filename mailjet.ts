@@ -67,9 +67,7 @@ async function handleSuscribeRequest(request: any) {
     if (!resAddListRecipient.ok) {
         return json({}, { status: 500 })
     }
-    if (resAddContact.ok && resAddListRecipient.ok) {
-        return json({}, { status: 201 })
-    }
+    return json({}, { status: 201 })
 }
 
 async function handleSendRequest(request: any) {
