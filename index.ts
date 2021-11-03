@@ -48,30 +48,54 @@ serve({
     "/send": handleSendRequest,
 });
 
+const responseHeaders = new Headers()
+responseHeaders.set('Access-Control-Allow-Origin', Deno.env.get('CORS') || '*')
+responseHeaders.set('Access-Control-Allow-Headers', '*')
+
 async function handleSuscribeRequest(request: any) {
     const { error, body } = await validateRequest(request, {
+        OPTIONS: {},
         POST: {
-            body: ['email']
+            body: ['email'],
         },
     })
     if (error) {
-        return json({ error: error.message }, { status: error.status });
+        return json({ error: error.message }, {
+            status: error.status,
+            headers: responseHeaders,
+        });
+    }
+    if (request.method === 'OPTIONS') {
+        return json({}, {
+            status: 200,
+            headers: responseHeaders,
+        })
     }
     // @ts-ignore: Unreachable code error
     const resAddContact = await addContact(body!.email)
     if (!resAddContact.ok) {
-        return json({}, { status: 500 })
+        return json({}, { 
+            status: 500,
+            headers: responseHeaders,
+        })
     }
     // @ts-ignore: Unreachable code error
     const resAddListRecipient = await addListRecipient(body!.email)
     if (!resAddListRecipient.ok) {
-        return json({}, { status: 500 })
+        return json({}, {
+            status: 500,
+            headers: responseHeaders,
+        })
     }
-    return json({}, { status: 201 })
+    return json({}, {
+        status: 201,
+        headers: responseHeaders,
+    })
 }
 
 async function handleSendRequest(request: any) {
     const { error, body } = await validateRequest(request, {
+        OPTIONS: {},
         POST: {
             body: [
                 'email',
@@ -83,7 +107,16 @@ async function handleSendRequest(request: any) {
         },
     })
     if (error) {
-        return json({ error: error.message }, { status: error.status });
+        return json({ error: error.message }, {
+            status: error.status,
+            headers: responseHeaders,
+        });
+    }
+    if (request.method === 'OPTIONS') {
+        return json({}, {
+            status: 200,
+            headers: responseHeaders,
+        })
     }
 
     const messageText = `
@@ -124,8 +157,14 @@ async function handleSendRequest(request: any) {
         },
     ])
     if (response.ok) {
-        return json({}, { status: 201 })
+        return json({}, {
+            status: 201,
+            headers: responseHeaders,
+        })
     } else {
-        return json({}, { status: 500 })
+        return json({}, {
+            status: 500,
+            headers: responseHeaders,
+        })
     }
 }
